@@ -1,0 +1,193 @@
+<div id="settings_j18fs">
+    <div class="pull-right">
+        <button class="btn btn-small" data-bind="click: showSensorConfig" title="{{ _('Sensor Configuration') }}"><i class="icon-wrench"></i></button>
+    </div>
+
+    <h3>{{ _('Julia Filament & Door Sensor') }}</h3>
+    <hr/>
+
+    <form class="form-horizontal">
+        <div> {# General settings #}
+            <h5>General</h5>
+
+            <div class="control-group">
+                <label class="control-label">{{ _('Sensor') }}</label>
+                <div class="controls">
+                    <select class="select-mini" data-bind="value: Config.sensor_enabled">
+                        <option value=0>{{ _('Disabled') }}</option>
+                        <option value=1>{{ _('Enabled') }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label">{{ _('Pause on trigger') }}</label>
+                <div class="controls">
+                    <select class="select-mini" data-bind="value: Config.pause_print">
+                        <option value=0>{{ _('Disabled') }}</option>
+                        <option value=1>{{ _('Enabled') }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label"></label>
+                <div class="controls">
+                    <button class="btn btn-info" data-bind="click: testStatus">Test Status</button>
+                </div>
+            </div>
+
+            <hr/>
+        </div> {# General settings #}
+
+        <div data-bind="visible: (sensorEnabled() && showExtruder0())"> {# Extruder 0 #}
+            <h5>Extruder 0</h5>
+
+            <div class="control-group">
+                <label class="control-label">{{ _('Contact debounce time') }}</label>
+                <div class="controls" data-toggle="tooltip" title="{{ _('Delay between consecutive state changes') }}">
+                    <input type="number" step="any" min="0" class="input" data-bind="value: Config.bounce_extruder0">
+                    <span class="add-on">ms</span>
+                    <span class="help-block">{{ _('Delay between consecutive state changes') }}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _('Contact type') }}</label>
+                <div class="controls">
+                    <select class="select-mini" data-bind="value: Config.contact_extruder0">
+                        {# value - state when filament is present  #}
+                        <option value=0>{{ _('Normally Closed (NC)') }}</option>
+                        <option value=1>{{ _('Normally Open (NO)') }}</option>
+                    </select>
+                    <span class="help-block">{{ _('NC - HIGH, NO - LOW when filament is not present') }}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _('Post-trigger gcode') }}</label>
+                <div class="controls">
+                    <input type="text" class="input-block-level" data-bind="value: Config.gcode_extruder0">
+                    <span class="help-block">{{ _('Gcode commands which will be run when Extruder 0 is out of filament. Separate multi commands with a semi colon.') }}</span>
+                </div>
+            </div>
+
+            <hr/>
+        </div> {# Extruder 0 #}
+
+        <div data-bind="visible: (sensorEnabled() && showExtruder1())"> {# Extruder 1 #}
+            <h5>Extruder 1</h5>
+
+            <div class="control-group">
+                <label class="control-label">{{ _('Contact debounce time') }}</label>
+                <div class="controls" data-toggle="tooltip" title="{{ _('Delay between consecutive state changes') }}">
+                    <input type="number" step="any" min="0" class="input" data-bind="value: Config.bounce_extruder1">
+                    <span class="add-on">ms</span>
+                    <span class="help-block">{{ _('Delay between consecutive state changes') }}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _('Contact type') }}</label>
+                <div class="controls">
+                    <select class="select-mini" data-bind="value: Config.contact_extruder1">
+                        {# value - state when filament is present  #}
+                        <option value=0>{{ _('Normally Closed (NC)') }}</option>
+                        <option value=1>{{ _('Normally Open (NO)') }}</option>
+                    </select>
+                    <span class="help-block">{{ _('NC - HIGH, NO - LOW when filament is not present') }}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _('Post-trigger gcode') }}</label>
+                <div class="controls">
+                    <input type="text" class="input-block-level" data-bind="value: Config.gcode_extruder1">
+                    <span class="help-block">{{ _('Gcode commands which will be run when Extruder 1 is out of filament. Separate multi commands with a semi colon.') }}</span>
+                </div>
+            </div>
+
+            <hr/>
+        </div> {# Extruder 1 #}
+
+        <div data-bind="visible: (sensorEnabled() && showDoor())"> {# Door #}
+            <h5>Door</h5>
+
+            <div class="control-group">
+                <label class="control-label">{{ _('Contact debounce time') }}</label>
+                <div class="controls" data-toggle="tooltip" title="{{ _('Delay between consecutive state changes') }}">
+                    <input type="number" step="any" min="0" class="input" data-bind="value: Config.bounce_door">
+                    <span class="add-on">ms</span>
+                    <span class="help-block">{{ _('Delay between consecutive state changes') }}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _('Contact type') }}</label>
+                <div class="controls">
+                    <select class="select-mini" data-bind="value: Config.contact_door">
+                        {# value - state when door is open  #}
+                        <option value=0>{{ _('Normally Closed (NC)') }}</option>
+                        <option value=1>{{ _('Normally Open (NO)') }}</option>
+                    </select>
+                    <span class="help-block">{{ _('NC - HIGH, NO - LOW when door is open') }}</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">{{ _('Post-trigger gcode') }}</label>
+                <div class="controls">
+                    <input type="text" class="input-block-level" data-bind="value: Config.gcode_door">
+                    <span class="help-block">{{ _('Gcode commands which will be run when the door is open. Separate multi commands with a semi colon.') }}</span>
+                </div>
+            </div>
+
+            <hr/>
+        </div> {# Door #}
+
+    </form>
+
+    <div id="settings_j18fs_config" class="modal hide fade">
+        <div class="modal-header">
+            <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+            <h3>{{ _('Sensor Configuration') }}</h3>
+        </div>
+
+        <div class="modal-body">
+            <form class="form-horizontal">
+
+                <div class="control-group">
+                    <label class="control-label">{{ _("Extruder 0") }}</label>
+                    <div class="controls">
+                        {# <input type="text" class="input" data-bind="value: (Config.pin < 0 ? 'Not Configured' : Config.pin)" readonly> #}
+                        <select class="select-mini" data-bind="value: Config.enabled_extruder0">
+                            <option value=0>{{ _('Disabled') }}</option>
+                            <option value=1>{{ _('Enabled') }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">{{ _('Extruder 1') }}</label>
+                    <div class="controls">
+                        <select class="select-mini" data-bind="value: Config.enabled_extruder1">
+                            <option value=0>{{ _('Disabled') }}</option>
+                            <option value=1>{{ _('Enabled') }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">{{ _('Door') }}</label>
+                    <div class="controls">
+                        {# <input type="text" class="input" data-bind="value: (Config.pin < 0 ? 'Not Configured' : Config.pin)" readonly> #}
+                        <select class="select-mini" data-bind="value: Config.enabled_door">
+                            <option value=0>{{ _('Disabled') }}</option>
+                            <option value=1>{{ _('Enabled') }}</option>
+                        </select>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">{{ _('Cancel') }}</button>
+            <button class="btn btn-primary" data-bind="click: onConfigClose" aria-hidden="true">{{ _('Ok') }}</button>
+        </div>
+    </div>
+</div>
