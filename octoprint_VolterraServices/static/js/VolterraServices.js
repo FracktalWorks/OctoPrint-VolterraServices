@@ -44,7 +44,7 @@ $(function() {
 
         self.testStatus = function(data) {
             
-            $.ajax("/plugin/Julia2018FilamentSensor/status");
+            $.ajax("/plugin/VolterraServices/status");
             // .success(function(data) {
             //     var msg = "";
             //     var type = "info"
@@ -61,11 +61,11 @@ $(function() {
             //         type = "warning"
             //     }
 
-            //     // self.onDataUpdaterPluginMessage("Julia2018FilamentSensor", {type: 'popup', msg, msgType:type, hide:false});
+            //     // self.onDataUpdaterPluginMessage("VolterraServices", {type: 'popup', msg, msgType:type, hide:false});
             // })
             // .fail(function(req, status) {
             //     console.log(status)
-            //     // self.onDataUpdaterPluginMessage("Julia2018FilamentSensor", {msg: "Error", type:'error', hide:false});
+            //     // self.onDataUpdaterPluginMessage("VolterraServices", {msg: "Error", type:'error', hide:false});
             // });
         };
 
@@ -105,7 +105,7 @@ $(function() {
         self.onBeforeBinding = function() {
             console.log('Binding JFSViewModel')
 
-            self.Config = self.VM_settings.settings.plugins.Julia2018FilamentSensor;
+            self.Config = self.VM_settings.settings.plugins.VolterraServices;
 
             var currentProfileData = self.VM_printerProfiles.currentProfileData();
             if (currentProfileData && currentProfileData.hasOwnProperty('extruder')) {
@@ -152,7 +152,7 @@ $(function() {
         };
 
         self.onDataUpdaterPluginMessage = function(plugin, data) {
-            if (plugin != "Julia2018FilamentSensor")
+            if (plugin != "VolterraServices")
                 return;
 
             var msg = "";

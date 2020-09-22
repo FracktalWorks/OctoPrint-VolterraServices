@@ -19,7 +19,7 @@ Closed  - LOW
 '''
 
 
-class Julia2018FilamentSensorPlugin(octoprint.plugin.StartupPlugin,
+class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
                                     octoprint.plugin.EventHandlerPlugin,
                                     octoprint.plugin.TemplatePlugin,
                                     octoprint.plugin.SettingsPlugin,
@@ -363,18 +363,18 @@ class Julia2018FilamentSensorPlugin(octoprint.plugin.StartupPlugin,
     '''
     def get_update_information(self):
         return dict(
-            octoprint_Julia2018FilamentSensor=dict(
+            octoprint_VolterraServices=dict(
                 displayName=self._plugin_name,
                 displayVersion=self._plugin_version,
 
                 # version check: github repository
                 type="github_release",
                 user="FracktalWorks",
-                repo="OctoPrint-Julia2018FilamentSensor",
+                repo="OctoPrint-VolterraServices",
                 current=self._plugin_version,
 
                 # update method: pip
-                pip="https://github.com/FracktalWorks/OctoPrint-Julia2018FilamentSensor/archive/{target_version}.zip"
+                pip="https://github.com/FracktalWorks/OctoPrint-VolterraServices/archive/{target_version}.zip"
             )
         )
 
@@ -394,7 +394,7 @@ class Julia2018FilamentSensorPlugin(octoprint.plugin.StartupPlugin,
         self._gpio_setup()
 
     def get_assets(self):
-        return dict(js=["js/Julia2018FilamentSensor.js"])
+        return dict(js=["js/VolterraServices.js"])
 
     def get_template_configs(self):
         return [dict(type="settings", custom_bindings=True)]
@@ -456,13 +456,13 @@ class Julia2018FilamentSensorPlugin(octoprint.plugin.StartupPlugin,
         self.send_status_to_hmi()
 
 
-__plugin_name__ = "Julia Filament & Door Sensor"
-__plugin_version__ = "1.2.2"
+__plugin_name__ = "Volterra Services"
+__plugin_version__ = "0.0.1"
 
 
 def __plugin_load__():
     global __plugin_implementation__
-    __plugin_implementation__ = Julia2018FilamentSensorPlugin()
+    __plugin_implementation__ = VolterraServicesPlugin()
 
     global __plugin_hooks__
     __plugin_hooks__ = {
