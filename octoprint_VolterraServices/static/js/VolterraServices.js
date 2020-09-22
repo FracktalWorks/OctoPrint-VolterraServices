@@ -14,7 +14,7 @@ $(function() {
         self.showExtruder0 = ko.observable(false);
         self.hasExtruder1 = ko.observable(false);
         self.showExtruder1 = ko.observable(false);
-        self.showDoor = ko.observable(false);
+        self.showDoorSensor = ko.observable(false);
 
         var status_text_extruder = function(x) {
             switch (x) {
@@ -29,7 +29,7 @@ $(function() {
             }
         };
 
-        var status_text_door = function(x) {
+        var status_text_door_sensor = function(x) {
             switch (x) {
                 case -1:
                     return "Sensor disabled";
@@ -84,7 +84,7 @@ $(function() {
                 self.closePopup();
             }
             var data = {
-                title: 'Julia Filament & Door Sensor',
+                title: 'Volterra Services',
                 text: msg,
                 type: msgType,
                 hide: hide
@@ -126,8 +126,8 @@ $(function() {
             self.Config.enabled_extruder1.subscribe(function(value) {
                 self.showExtruder1(self.hasExtruder1() && value == 1);
             });
-            self.Config.enabled_door.subscribe(function(value) {
-                self.showDoor(value == 1);
+            self.Config.enabled_door_sensor.subscribe(function(value) {
+                self.showDoorSensor(value == 1);
             });
 
             console.log(self.VM_settings);
@@ -148,7 +148,7 @@ $(function() {
             self.sensorEnabled(self.Config.sensor_enabled() == 1);
             self.showExtruder0(self.Config.enabled_extruder0() == 1);
             self.showExtruder1(self.hasExtruder1() && self.Config.enabled_extruder1() == 1);
-            self.showDoor(self.Config.enabled_door() == 1);
+            self.showSensor(self.Config.enabled_door_sensor() == 1);
         };
 
         self.onDataUpdaterPluginMessage = function(plugin, data) {
@@ -168,8 +168,8 @@ $(function() {
                     msg += "<b>Extruder 0:</b> " + status_text_extruder(data['extruder0']) + "<br/>";
                     if (data['extruder1'] != undefined)
                         msg += "<b>Extruder 1:</b> " + status_text_extruder(data['extruder1']) + "<br/>";
-                    if (data['door'] != -1)
-                        msg += "<b>Door:</b> " + status_text_door(data['door']);
+                    if (data['door_sensor'] != -1)
+                        msg += "<b>Door Sensor:</b> " + status_text_door_sensor(data['door_sensor']);
                 } else {
                     msg = "<b>Sensing disabled!</b>"
                     type = "warning"

@@ -3,7 +3,7 @@
         <button class="btn btn-small" data-bind="click: showSensorConfig" title="{{ _('Sensor Configuration') }}"><i class="icon-wrench"></i></button>
     </div>
 
-    <h3>{{ _('Julia Filament & Door Sensor') }}</h3>
+    <h3>{{ _('Volterra Services') }}</h3>
     <hr/>
 
     <form class="form-horizontal">
@@ -106,13 +106,13 @@
             <hr/>
         </div> {# Extruder 1 #}
 
-        <div data-bind="visible: (sensorEnabled() && showDoor())"> {# Door #}
-            <h5>Door</h5>
+        <div data-bind="visible: (sensorEnabled() && showDoorSensor())"> {# Door Sensor #}
+            <h5>Door Sensor</h5>
 
             <div class="control-group">
                 <label class="control-label">{{ _('Contact debounce time') }}</label>
                 <div class="controls" data-toggle="tooltip" title="{{ _('Delay between consecutive state changes') }}">
-                    <input type="number" step="any" min="0" class="input" data-bind="value: Config.bounce_door">
+                    <input type="number" step="any" min="0" class="input" data-bind="value: Config.bounce_door_sensor">
                     <span class="add-on">ms</span>
                     <span class="help-block">{{ _('Delay between consecutive state changes') }}</span>
                 </div>
@@ -120,7 +120,7 @@
             <div class="control-group">
                 <label class="control-label">{{ _('Contact type') }}</label>
                 <div class="controls">
-                    <select class="select-mini" data-bind="value: Config.contact_door">
+                    <select class="select-mini" data-bind="value: Config.contact_door_sensor">
                         {# value - state when door is open  #}
                         <option value=0>{{ _('Normally Closed (NC)') }}</option>
                         <option value=1>{{ _('Normally Open (NO)') }}</option>
@@ -131,13 +131,13 @@
             <div class="control-group">
                 <label class="control-label">{{ _('Post-trigger gcode') }}</label>
                 <div class="controls">
-                    <input type="text" class="input-block-level" data-bind="value: Config.gcode_door">
+                    <input type="text" class="input-block-level" data-bind="value: Config.gcode_door_sensor">
                     <span class="help-block">{{ _('Gcode commands which will be run when the door is open. Separate multi commands with a semi colon.') }}</span>
                 </div>
             </div>
 
             <hr/>
-        </div> {# Door #}
+        </div> {# Door Sensor #}
 
     </form>
 
@@ -172,10 +172,10 @@
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">{{ _('Door') }}</label>
+                    <label class="control-label">{{ _('Door Sensor') }}</label>
                     <div class="controls">
                         {# <input type="text" class="input" data-bind="value: (Config.pin < 0 ? 'Not Configured' : Config.pin)" readonly> #}
-                        <select class="select-mini" data-bind="value: Config.enabled_door">
+                        <select class="select-mini" data-bind="value: Config.enabled_door_sensor">
                             <option value=0>{{ _('Disabled') }}</option>
                             <option value=1>{{ _('Enabled') }}</option>
                         </select>

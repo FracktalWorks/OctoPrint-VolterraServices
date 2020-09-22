@@ -34,7 +34,8 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
 
     PIN_EXTRUDER0 = 5
     PIN_EXTRUDER1 = 6
-    PIN_DOOR = 26
+    PIN_DOOR_SENSOR = 26
+    PIN_DOOR_LOCK = 13
 
     '''
     Popup messages
@@ -104,20 +105,20 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
         return self.format_gcode("gcode_extruder1")
 
     @property
-    def enabled_door(self):
-        return self._settings.get_boolean(["enabled_door"])
+    def enabled_door_sensor(self):
+        return self._settings.get_boolean(["enabled_door_sensor"])
 
     @property
-    def bounce_door(self):
-        return self._settings.get_int(["bounce_door"])
+    def bounce_door_sensor(self):
+        return self._settings.get_int(["bounce_door_sensor"])
 
     @property
-    def contact_door(self):
-        return self._settings.get_int(["contact_door"])
+    def contact_door_sensor(self):
+        return self._settings.get_int(["contact_door_sensor"])
 
     @property
-    def gcode_door(self):
-        return self.format_gcode("gcode_door")
+    def gcode_door_sensor(self):
+        return self.format_gcode("gcode_door_sensor")
 
     @property
     def pause_print(self):
@@ -131,7 +132,7 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
         sensor_enabled = 0
         extruder0 = -1
         extruder1 = None if not self.has_extruder1() else -1
-        door = -1
+        door_sensor = -1
 
         if self.sensor_enabled:
             sensor_enabled = 1
@@ -139,11 +140,11 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
                 extruder0 = 0 if self.outage_extruder0() else 1
             if self.has_extruder1() and self.enabled_extruder1:
                     extruder1 = 0 if self.outage_extruder1() else 1
-            if self.enabled_door:
-                door = 0 if self.outage_door() else 1
+            if self.enabled_door_sensor:
+                door_sensor = 0 if self.outage_door_sensor() else 1
 
         return dict(sensor_enabled=sensor_enabled, extruder0=extruder0, 
-                    extruder1=extruder1, door=door, active_tool=self.active_tool,
+                    extruder1=extruder1, door_sensor=door_sensor, active_tool=self.active_tool,
                     pause_print=self.pause_print)
 
     def send_status_to_hmi(self):
@@ -152,6 +153,19 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
     '''
     REST endpoints
     '''
+
+    @octoprint.plugin.BlueprintPlugin.route("/lock_override", methods=["GET"])
+    def route_lock_overide(self):
+        if self.DOOR_STATE == 'unlocked' :
+            GPIO.output(self.PIN_DOOR_LOCK, True)
+            self.DOOR_STATE = 'locked'
+            self.log_info("Door Locked")
+        elif self.DOOR_STATE == 'locked' :
+            GPIO.output(self.PIN_DOOR_LOCK, False)
+            self.DOOR_STATE = 'unlocked'
+            self.log_info("Door Unlocked")
+        return NO_CONTENT
+
     @octoprint.plugin.BlueprintPlugin.route("/ping", methods=["GET"])
     def route_ping(self):
         return NO_CONTENT
@@ -199,9 +213,9 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
             self.popup_error(e)
             return False
 
-    def outage_door(self):
+    def outage_door_sensor(self):
         try:
-            return GPIO.input(self.PIN_DOOR) == self.contact_door
+            return GPIO.input(self.PIN_DOOR_SENSOR) == self.contact_door_sensor
         except Exception as e:
             self.popup_error(e)
             return False
@@ -238,13 +252,17 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
 
             self._gpio_clean_pin(self.PIN_EXTRUDER0)
             self._gpio_clean_pin(self.PIN_EXTRUDER1)
-            self._gpio_clean_pin(self.PIN_DOOR)
+            self._gpio_clean_pin(self.PIN_DOOR_SENSOR)
+            self._gpio_clean_pin(self.PIN_DOOR_LOCK)
 
             # GPIO.remove_event_detect(self.PIN_EXTRUDER0)
             # GPIO.remove_event_detect(self.PIN_EXTRUDER1)
             # GPIO.remove_event_detect(self.PIN_DOOR)
 
-            if self.sensor_enabled and (self.enabled_extruder0 or self.enabled_extruder1 or self.enabled_door):
+            GPIO.setup(self.PIN_DOOR_LOCK,GPIO.OUT)
+            GPIO.output(self.PIN_DOOR_LOCK,False)
+
+            if self.sensor_enabled and (self.enabled_extruder0 or self.enabled_extruder1 or self.enabled_door_sensor):
                 if self.enabled_extruder0:
                     self.log_info("Filament Sensor active on Extruder 0, GPIO Pin [%s]" % self.PIN_EXTRUDER0)
                     GPIO.setup(self.PIN_EXTRUDER0, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -265,15 +283,16 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
                         callback=self.callback_extruder1,
                         bouncetime=self.bounce_extruder1
                     )
-                if self.enabled_door:
-                    self.log_info("Door Sensor active, GPIO Pin [%s]" % self.PIN_DOOR)
-                    GPIO.setup(self.PIN_DOOR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                    GPIO.remove_event_detect(self.PIN_DOOR)
+                if self.enabled_door_sensor:
+                    self.log_info("Door Sensor active, GPIO Pin [%s]" % self.PIN_DOOR_SENSOR)
+                    GPIO.setup(self.PIN_DOOR_SENSOR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                    GPIO.remove_event_detect(self.PIN_DOOR_SENSOR)
                     GPIO.add_event_detect(
-                        self.PIN_DOOR, GPIO.BOTH,
-                        callback=self.callback_door,
-                        bouncetime=self.bounce_door
+                        self.PIN_DOOR_SENSOR, GPIO.BOTH,
+                        callback=self.callback_door_sensor,
+                        bouncetime=self.bounce_door_sensor
                     )
+                    
             else:
                 self.log_info("Sensor disabled")
         except Exception as e:
@@ -289,21 +308,33 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
         # Early abort in case of out ot filament when start printing, as we
         # can't change with a cold nozzle
         if event is Events.PRINT_STARTED:
+            #lock Door:
+            self.DOOR_STATE = 'locked'
+            GPIO.output(self.PIN_DOOR_LOCK,True)
+            self.log_info("Door Locked")
+
             if not self.sensor_enabled:
                 return
 
             if (self.enabled_extruder0 and self.outage_extruder0()) or \
                (self.has_extruder1() and self.enabled_extruder1 and self.outage_extruder1()) or \
-               (self.enabled_door and self.outage_door()):
+               (self.enabled_door_sensor and self.outage_door_sensor()):
                 self.send_status_to_hmi()
 
             if (self.enabled_extruder0 and self.outage_extruder0()) or \
-               (self.enabled_door and self.outage_door()):
+               (self.enabled_door_sensor and self.outage_door_sensor()):
                 self._printer.pause_print()
 
         if event is Events.TOOL_CHANGE:
             self.active_tool = int(payload["new"])
             self.send_status_to_hmi()
+
+        if event in (Events.PRINT_DONE, Events.PRINT_CANCELLED,Events.PRINT_FAILED):
+            # unlock Door:
+            self.DOOR_STATE = 'unlocked'
+            GPIO.output(self.PIN_DOOR_LOCK, False)
+            self.log_info("Door Unlocked")
+
 
     def callback_extruder0(self, _):
         sleep(self.bounce_extruder1 / 1000)  # Debounce
@@ -343,10 +374,10 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
         if self.gcode_extruder1:
             self._printer.commands(self.gcode_extruder1)
 
-    def callback_door(self, _):
-        sleep(self.bounce_door / 1000)
+    def callback_door_sensor(self, _):
+        sleep(self.bounce_door_sesnor / 1000)
 
-        if not self.outage_door():
+        if not self.outage_door_sensor():
             return self.popup_success("Door closed!")
 
         self.send_status_to_hmi()
@@ -355,8 +386,8 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
         # if self.pause_print:
         #     self._printer.pause_print()
 
-        if self.gcode_door:
-            self._printer.commands(self.gcode_door)
+        if self.gcode_door_sensor:
+            self._printer.commands(self.gcode_door_sensor)
 
     '''
     Update Management
@@ -382,7 +413,7 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
     Plugin Management
     '''
     def initialize(self):
-        self.log_info("Julia Filament Sensor started")
+        self.log_info("Volterra Services started")
         self.log_info("Running RPi.GPIO version '{0}'".format(GPIO.VERSION))
         if GPIO.VERSION < "0.6":       # Need at least 0.6 for edge detection
             raise Exception("RPi.GPIO must be greater than 0.6")
@@ -416,10 +447,10 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
             contact_extruder1=0,            # Normally Open
             gcode_extruder1=None,
 
-            enabled_door=False,                # Default is disabled
-            bounce_door=250,                # Debounce 250ms
-            contact_door=0,                 # Normally Open
-            gcode_door=None,
+            enabled_door_sensor=False,                # Default is disabled
+            bounce_door_sensor=250,                # Debounce 250ms
+            contact_door_sensor=0,                 # Normally Open
+            gcode_door_sensor=None,
 
             pause_print=True,               # pause on outage
         )
@@ -457,7 +488,7 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
 
 
 __plugin_name__ = "Volterra Services"
-__plugin_version__ = "0.0.1"
+__plugin_version__ = "0.0.2"
 
 
 def __plugin_load__():
