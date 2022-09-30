@@ -1,5 +1,5 @@
 # coding=utf-8
-
+import versioneer
 ########################################################################################################################
 ### Do not forget to adjust the following variables to your own plugin.
 
@@ -14,7 +14,7 @@ plugin_package = "octoprint_VolterraServices"
 plugin_name = "Octoprint-VolterraServices"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.0.2"
+plugin_version = versioneer.get_version()   # replaced by versioneer
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
@@ -33,7 +33,7 @@ plugin_url = "https://github.com/FracktalWorks/OctoPrint-VolterraServices"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ['']
+plugin_requires = ['RPi.GPIO']
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point

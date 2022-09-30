@@ -9,6 +9,9 @@ from time import sleep
 from flask import jsonify
 from octoprint.server import NO_CONTENT
 # import json
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 '''
 Uses Pi's internal pullups.
@@ -488,7 +491,8 @@ class VolterraServicesPlugin(octoprint.plugin.StartupPlugin,
 
 
 __plugin_name__ = "Volterra Services"
-__plugin_version__ = "0.0.2"
+__plugin_version__ = __version__
+__plugin_pythoncompat__ = ">=2.7,<4"
 
 
 def __plugin_load__():
