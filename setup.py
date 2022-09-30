@@ -1,6 +1,6 @@
 # coding=utf-8
 from setuptools import setup
-import versione
+import versioneer
 ########################################################################################################################
 ### Do not forget to adjust the following variables to your own plugin.
 
